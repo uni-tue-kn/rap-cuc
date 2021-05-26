@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from TLV import TLV 
-from Failure_code import Failure_code
-from Vlan_context_tlv import Vlan_context_tlv
+from .TLV import TLV
+from .Failure_code import Failure_code
+from .Vlan_context_tlv import Vlan_context_tlv
 
 
 class Redundancy_control_tlv:

@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import binascii
-from TLV import TLV
-from Data_frame_parameters_tlv import Data_frame_parameters_tlv
-from Msrp_tspec_tlv import Msrp_tspec_tlv
-from Token_bucket_tspec_tlv import Token_bucket_tspec_tlv
-from Redundancy_control_tlv import Redundancy_control_tlv
-from Vlan_context_tlv import Vlan_context_tlv
-from Failure_information_tlv import Failure_information_tlv
-from Failure_code import Failure_code
-from Interface_configuration_tlv import Interface_configuration_tlv
+from .TLV import TLV
+from .Data_frame_parameters_tlv import Data_frame_parameters_tlv
+from .Msrp_tspec_tlv import Msrp_tspec_tlv
+from .Token_bucket_tspec_tlv import Token_bucket_tspec_tlv
+from .Redundancy_control_tlv import Redundancy_control_tlv
+from .Vlan_context_tlv import Vlan_context_tlv
+from .Failure_information_tlv import Failure_information_tlv
+from .Failure_code import Failure_code
+from .Interface_configuration_tlv import Interface_configuration_tlv
 
 
 class TAA:
     def __init__(self, stream_id="00-00-00-00-00-00:00-00", stream_rank=0, destination_mac='00-00-00-00-00-00',
-                 vlan_id=0x0, priority=0x0, msrp_tspec=None, token_bucket_tspec=None, organizationally_defined=[]):
+                 vlan_id=0x0, priority=0x0, msrp_tspec=None, token_bucket_tspec=None, organizationally_defined=None):
         self.__TYPE_ID = 0x01
 
         stream_id_clean = stream_id.replace(':', '')
@@ -48,10 +48,16 @@ class TAA:
                            + self.__btos(s[6]) + "-" + self.__btos(s[7])
         return stream_id_string
 
-    def get_mac(self):
+    def get_dst_mac(self):
         s = self.data_frame_parameters_stlv.dst_mac_address
         mac = str(s[0]) + "-" + str(s[1]) + "-" + str(s[2]) + "-" + str(s[3]) + "-" + str(s[4]) + "-" \
                            + str(s[5])
+        return mac
+
+    def get_mac(self):
+        s = self.stream_id
+        mac = self.__btos(s[0]) + "-" + self.__btos(s[1]) + "-" + self.__btos(s[2]) + "-" \
+                           + self.__btos(s[3]) + "-" + self.__btos(s[4]) + "-"  + self.__btos(s[5])
         return mac
 
     def serialize(self):
@@ -82,6 +88,10 @@ class TAA:
         if self.interface_configuration is not None:
             inter_conf = self.interface_configuration.serialize()
             value = value + inter_conf
+
+        if self.organizationally_defined_stlv is not None:
+            org_tlv = self.organizationally_defined_stlv.serialize()
+            value = value + org_tlv
 
         length = len(value)
 
@@ -127,6 +137,12 @@ class TAA:
             self.interface_configuration.deserialize(value[next_index:next_index + offset])
             next_index += offset
 
+        if len(value) > next_index and value[next_index] == 0x27: # Time aware spec org tlv
+            offset = value[next_index + 1] * 256 + value[next_index + 2] + 3
+            self.organizationally_defined_stlv = Org_defined_taa_tlv()
+            self.organizationally_defined_stlv.deserialize(value[next_index:next_index + offset])
+            next_index += offset
+
     def add_failure_information(self, mac, failure_code):
         """ Add a failure information sub-TLV to TAA
 
@@ -154,6 +170,9 @@ class TAA:
         inter_conf.parse_from_json(json_string)
         self.interface_configuration = inter_conf
 
+    def add_org_defined(self, org_tlv):
+        self.organizationally_defined_stlv = org_tlv
+
     def increase_accumulated_latency(self, summand):
         self.accumulated_maximum_latency += summand
 
@@ -177,6 +196,9 @@ class TAA:
 
         if self.data_frame_parameters_stlv is not None:
             self.data_frame_parameters_stlv.dump()
+
+        if self.organizationally_defined_stlv is not None:
+            self.organizationally_defined_stlv.dump()
 
     def dump_pretty(self):
         stream = "---------------------------------------------------------------- \n" \
@@ -202,4 +224,42 @@ class TAA:
         print(log_msg, flush=True)
 
         return log_msg
+
+
+class Org_defined_taa_tlv:
+    def __init__(self, interval_numerator=0, interval_denominator=0, earliest_transmit_offset=0, latest_transit_offset=0, jitter=0, maximum_latency=0):
+        self.__TYPE_ID = 0x27
+        self.ocid = bytearray.fromhex("EFEFEF")
+
+        self.interval_numerator = interval_numerator  # L = 4
+        self.interval_denominator = interval_denominator  # L = 4
+        self.earliest_transmit_offset = earliest_transmit_offset  # L = 4
+        self.latest_transmit_offset = latest_transit_offset  # L = 4
+        self.jitter = jitter  # L = 4
+        self.maximum_latency= maximum_latency  # L = 4
+
+    def serialize(self):
+
+        value = self.ocid + self.interval_numerator.to_bytes(4, "big") + self.interval_denominator.to_bytes(4, "big") \
+                + self.earliest_transmit_offset.to_bytes(4, "big") + self.latest_transmit_offset.to_bytes(4, "big") \
+                + self.jitter.to_bytes(4, "big") \
+                + self.maximum_latency.to_bytes(4, "big")
+
+        return TLV.encapsulate_object(self.__TYPE_ID, len(value), value)
+
+    def deserialize(self, tlv):
+        value, rest = TLV.extract(tlv)
+
+        self.interval_numerator = int.from_bytes(value[3:7], byteorder='big', signed=False)
+        self.interval_denominator = int.from_bytes(value[7:11], byteorder='big', signed=False)
+        self.earliest_transmit_offset = int.from_bytes(value[11:15], byteorder='big', signed=False)
+        self.latest_transmit_offset = int.from_bytes(value[15:19], byteorder='big', signed=False)
+        self.jitter = int.from_bytes(value[19:23], byteorder='big', signed=False)
+        self.maximum_latency = int.from_bytes(value[23:27], byteorder='big', signed=False)
+
+    def dump(self):
+        obj = self
+        for attr in dir(obj):
+            print("obj.%s = %r" % (attr, getattr(obj, attr)))
+
 

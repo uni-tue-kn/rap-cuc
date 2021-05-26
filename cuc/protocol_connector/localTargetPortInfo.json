@@ -1,0 +1,62 @@
+{
+    "localTargetPorts":
+    [
+        {
+            "chassisId": "00:00:00:00:00:00",
+            "portId": "1",
+            "ecpCapable": false,
+            "tcpCapable": true,
+            "tcpPort": "1111",
+            "addrIPv4": "127.0.0.1",
+            "addrIPv6": ""
+        },
+        {
+            "chassisId": "00:00:00:00:00:00",
+            "portId": "2",
+            "ecpCapable" : false,
+            "tcpCapable": true,
+            "tcpPort": "2222",
+            "addrIPv4": "127.0.0.1",
+            "addrIPv6": ""
+        },
+        {
+            "chassisId": "00:00:00:00:00:00",
+            "portId": "3",
+            "ecpCapable" : false,
+            "tcpCapable": true,
+            "tcpPort": "3333",
+            "addrIPv4": "127.0.0.1",
+            "addrIPv6": ""
+        }
+    ],
+    "neighbourTargetPorts":
+    [
+        {
+            "chassisId": "01-01-01-01-01-01",
+            "portId": "1",
+            "ecpCapable": false,
+            "tcpCapable": true,
+            "tcpPort": "50000",
+            "addrIPv4": "127.0.0.1",
+            "addrIPv6": ""
+        },
+        {
+            "chassisId": "02-02-02-02-02-02",
+            "portId": "2",
+            "ecpCapable" : false,
+            "tcpCapable": true,
+            "tcpPort": "50001",
+            "addrIPv4": "127.0.0.1",
+            "addrIPv6": ""
+        },
+        {
+            "chassisId": "03-03-03-03-03-03",
+            "portId": "3",
+            "ecpCapable" : false,
+            "tcpCapable": true,
+            "tcpPort": "50002",
+            "addrIPv4": "127.0.0.1",
+            "addrIPv6": ""
+        }
+    ]
+}

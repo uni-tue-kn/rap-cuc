@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
 class TLV:
     # Type = 1
     # Len  = 2

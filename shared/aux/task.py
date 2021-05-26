@@ -17,6 +17,7 @@ from shared.aux.msgType import MsgType
 loggerWrapper = Logger(__file__ + ".log")
 logger = loggerWrapper.get_logger()
 
+
 @dataclass
 class Task:
     """General task which uses a given state machine to service messages from other tasks"""
@@ -42,16 +43,16 @@ class Task:
         else:
             logger.error("Unknown message type!")
 
-    def run(self, states: dict) -> None:
+    def run(self, lib) -> None:
         """ Main loop of the task, which waits on messages from a queue and processes according to a state machine
-        @param states:
+        @param lib:
         """
         while not Task.terminate_event.is_set():
 
             logger.info("Checking for message...")
             q_pckt = self.msg_queue.get_msg(blocking=True)
             logger.info("Message from other task received!")
-            self.statemachine(states, q_pckt)
+            self.statemachine(lib.states, q_pckt)
 
     def run_task_as_thread(self, lib_instance) -> threading.Thread:
         """
@@ -60,7 +61,7 @@ class Task:
         @return:
         """
         logger.info("Starting %s task.. ", self.name)
-        t = threading.Thread(target=self.run, args=[lib_instance.states])
+        t = threading.Thread(target=self.run, args=[lib_instance])
         t.daemon = True
         t.start()
         return t

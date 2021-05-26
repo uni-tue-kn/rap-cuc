@@ -5,11 +5,11 @@ import sys
 
 sys.path.insert(0, '/app/shared/rap/')
 
-from Listener_status import Listener_status
-from TLV import TLV
-from Failure_information_tlv import Failure_information_tlv
-from Interface_configuration_tlv import Interface_configuration_tlv
-from Failure_code import Failure_code  # For test code at bottom
+from .Listener_status import Listener_status
+from .TLV import TLV
+from .Failure_information_tlv import Failure_information_tlv
+from .Interface_configuration_tlv import Interface_configuration_tlv
+from .Failure_code import Failure_code  # For test code at bottom
 
 class LAA:
     def __init__(self, stream_id= "00-00-00-00-00-00:00-00"):

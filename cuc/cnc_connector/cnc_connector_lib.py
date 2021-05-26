@@ -5,11 +5,14 @@ import sys
 from collections import OrderedDict
 from dataclasses import dataclass
 
+from .webhook_lib import WebhookHandler
+
 sys.path.insert(0, '..')
 from shared.aux.logger import Logger
 from shared.aux.msgQueue import MsgQueue
 from shared.aux.msgQueuePacket import MsgQueuePacket
 from shared.aux.msgType import MsgType
+from shared.aux.task import Task
 
 # Logger
 loggerWrapper = Logger(__file__ + ".log")
@@ -40,7 +43,13 @@ class CncConnectorDummySM:
             MsgType.WHH_RESULT_IND: self.process_cnc_result,
         }
 
-        # todo startup webhook handler task
+        self.wh_handler = WebhookHandler(self.queue_register)
+        """ The Webhook Handler
+         The wh handler can be used to obtain hook ids for requests
+            - wh_handler.generate_hook_id
+         This hook id can be used as a response callback for long computations, 
+         if the cnc supports this mechanism
+        """
 
     def get_states(self) -> dict:
         """ Used to obtain the states to handler function mapping of a state machine for a task
@@ -53,12 +62,12 @@ class CncConnectorDummySM:
         @param q_pckt: Talker-groupings and Listener-groupings
         @return:
         """
-        print(q_pckt)
+
         pass
 
     def update_stream(self, q_pckt: MsgQueuePacket) -> None:
         """ This handler updates the stream requirements of a stream, as a whole or when talker is updated
-        @param q_pckt: 
+        @param q_pckt: Talker-groupings and Listener-groupings
         @return: 
         """
         pass
@@ -79,7 +88,7 @@ class CncConnectorDummySM:
 
     def update_listener(self, q_pckt: MsgQueuePacket) -> None:
         """ This handler updates the requirements of a listener to a stream.
-        @param q_pckt:
+        @param q_pckt: contains the listener-grouping and stream ID
         @return:
         """
         pass
@@ -97,5 +106,21 @@ class CncConnectorDummySM:
                         and the callback address of the request
         @return:
         """
+        # Parse the result
+        # Build message for SML
+        # Send to SML message containing:
+        # - stream_id,
+        # - talker_conf: StatusTalkerListener,
+        # - listeners_conf: [StatusTalkerListener, ...],
+        # - stream_status: StatusStream
+        #msg = {
+        #    "stream_id": ,
+        #    "talker_conf":,
+        #    "listener_conf":,
+        #    "stream_status":
+        #}
+
+        #self.queue_register["stream_management"].send_msg(msg=MsgQueuePacket(MsgType.CC_RESERVATION_RESULT_IND, msg),
+        #                                              sender_name="sml")
         pass
 

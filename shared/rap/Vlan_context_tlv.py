@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from TLV import TLV 
-from Failure_code import Failure_code
-from Failure_information_tlv import Failure_information_tlv
+from .TLV import TLV
+from .Failure_code import Failure_code
+from .Failure_information_tlv import Failure_information_tlv
 
 
 class Vlan_context_tlv:

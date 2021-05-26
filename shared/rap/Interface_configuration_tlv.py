@@ -1,7 +1,7 @@
-from TLV import TLV
 import json
 import binascii
 
+from .TLV import TLV
 
 
 

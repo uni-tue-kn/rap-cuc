@@ -3,8 +3,8 @@
 
 import binascii
 
-from TLV import TLV 
-from Failure_code import Failure_code
+from .TLV import TLV
+from .Failure_code import Failure_code
 
 class Failure_information_tlv:
     def __init__(self, mac= '00-00-00-00-00-00', failure_code = Failure_code.ERROR):

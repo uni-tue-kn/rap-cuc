@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from TLV import TLV
+from .TLV import TLV
 
 class Msrp_tspec_tlv:
     def __init__(self, max_frame_size = 0, max_interval_frames = 0):

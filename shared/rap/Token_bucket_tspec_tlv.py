@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from TLV import TLV
+from .TLV import TLV
 
 class Token_bucket_tspec_tlv:
     def __init__(self, max_trans_frame_size = 0, min_trans_frame_size = 0, commited_information_rate = 0, commited_burst_size = 0):

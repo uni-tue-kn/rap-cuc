@@ -20,7 +20,6 @@ from shared.aux.msgType import MsgType
 
 
 sys.path.insert(0, '..')
-from shared.qcc import group_talker
 from shared.aux.task import Task
 from shared.aux.logger import Logger
 
@@ -47,7 +46,6 @@ def main():
     protocol_connector_task = init_task("protocol_connector", queue_register)
     sml_task                = init_task("stream_management", queue_register)
     cnc_connector_task      = init_task("cnc_connector", queue_register)
-    webhook_task            = init_task("webhook_handler", queue_register)
 
     logger.info("Initializing libraries... ")
     # protocol connector lib
@@ -62,13 +60,6 @@ def main():
     pc_lib = protocol_connector_task.run_task_as_thread(pc_lib)
     cnc_connector_thread = cnc_connector_task.run_task_as_thread(cnc_connector_lib)
     sml_thread = sml_task.run_task_as_thread(sml_lib)
-
-    # Send Test Message
-    q_pckt = MsgQueuePacket(MsgType.CC_ADD_STREAM_REQ, "Hallo I bims ein Task")
-    queue_register["cnc_connector"].send_msg(q_pckt, sender_name="cuc_application")
-    queue_register["cnc_connector"].send_msg(q_pckt, sender_name="cuc_application")
-    q_pckt = MsgQueuePacket(MsgType.CC_ADD_STREAM_REQ, "Hallo I bims zwei Task")
-    queue_register["cnc_connector"].send_msg(q_pckt, sender_name="cuc_application")
 
     while True:
         logger.info("Waiting for input ... ")

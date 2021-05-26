@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from TLV import TLV
+from .TLV import TLV
 
 class Data_frame_parameters_tlv:
     def __init__(self, dst_mac_address = '00-00-00-00-00-00', vlan_id=0, priority=0):
