@@ -9,10 +9,8 @@ from .webhook_lib import WebhookHandler
 
 sys.path.insert(0, '..')
 from shared.aux.logger import Logger
-from shared.aux.msgQueue import MsgQueue
 from shared.aux.msgQueuePacket import MsgQueuePacket
 from shared.aux.msgType import MsgType
-from shared.aux.task import Task
 
 # Logger
 loggerWrapper = Logger(__file__ + ".log")

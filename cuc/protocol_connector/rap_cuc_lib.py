@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 
 from .lrp_dummy_lib import LrpDummy
 from .rap_participant import RapParticipantSM
-from ..stream_management.lib.stream_status_db import StreamState
+from stream_management.lib.stream_status_db import StreamState
 
 sys.path.insert(0, '..')
 from shared.aux.msgQueue import MsgQueue
@@ -58,8 +58,7 @@ class StreamRegister:
 
     def get_participant_id_talker(self, stream_id):
         if self.stream_register.get(stream_id):
-            if self.stream_register.get(stream_id).get("talker"):
-                return self.stream_register.get(stream_id).get("talker")
+            return self.stream_register.get(stream_id).get("talker")
         return -1  # Participant Id is always positive
 
     def get_participant_id_listeners(self, stream_id):
@@ -264,7 +263,7 @@ class RapCucSM:
         """
         stream_id: str = q_pckt.message["stream_id"]
         talkers_conf: StatusTalkerListener = q_pckt.message["talker_conf"]
-        listeners_status: [StatusTalkerListener] = q_pckt.message["listeners_conf"]
+        listeners_config: [StatusTalkerListener] = q_pckt.message["listeners_conf"]
         stream_status: StatusStream = q_pckt.message["stream_status"]
         talker_status = stream_status.statusInfo["talker-status"]
         stream_state = q_pckt.message["stream_state"]
@@ -272,7 +271,7 @@ class RapCucSM:
         if stream_state == StreamState.WITHDRAWN:
             self.withdraw_all_attributes(stream_id)
         elif stream_state == StreamState.DEPLOYED or stream_state == StreamState.ERROR:
-            self.notify_listeners(listeners_status, stream_id, stream_status, talker_status)
+            self.notify_listeners(listeners_config, stream_id, stream_status, talker_status)
             self.notify_talker(stream_id, stream_status, talkers_conf)
 
     def withdraw_all_attributes(self, stream_id):
@@ -290,15 +289,17 @@ class RapCucSM:
         # Withdraw LAA from Listener
         self.withdraw_attribute(talker_participantId, LAA(stream_id=stream_id))
 
-    def notify_listeners(self, listeners_status, stream_id, stream_status, talker_status):
+    def notify_listeners(self, listeners_configs: [StatusTalkerListener], stream_id, stream_status, talker_status):
         listeners_part_ids = self.stream_register.get_participant_id_listeners(stream_id)
-        listener_partId_mac = {x: self.get_listener_mac(x) for x in listeners_part_ids}
+        # listener_partId_mac = {x: self.get_listener_mac(x) for x in listeners_part_ids}
+        listener_partId_mac = {self.get_listener_mac(x): x for x in listeners_part_ids}
+
         # All successful listeners
-        for listener_config in listeners_status:
+        for listener_config in listeners_configs:
             taa = self.stream_register.get_talker_attribute(stream_id)
             taa.accumulated_maximum_latency += listener_config.accumulatedLatency
 
-            mac = listener_config.interfaceConfiguration.interfaceList[0]["mac-address"]
+            mac = listener_config.interfaceConfiguration.interfaceList[0].interfaceId.macAddress
 
             if talker_status == 2:  # Talker Status= Failed
                 taa.add_failure_information(mac=stream_status.failedInterfaces[0].macAddress,
@@ -313,7 +314,7 @@ class RapCucSM:
                                         failure_code=stream_status.statusInfo["failure-code"])
             self.declare_attribute(participantId=l_partId, attribute=taa)
 
-    def notify_talker(self, stream_id, stream_status, talkers_status):
+    def notify_talker(self, stream_id, stream_status, talkers_config):
         laa = LAA(stream_id)
         laa.listener_attach_status = stream_status.statusInfo["listener-status"]
         # Attach failure information if needed
@@ -323,10 +324,13 @@ class RapCucSM:
                                         failure_code=stream_status.statusInfo["failure-code"])
         # Attach interface configuration if needed
         elif laa.listener_attach_status is Listener_status.READY:
-            laa.add_interface_configuration(talkers_status.interfaceConfiguration.interfaceList)
+            laa.add_interface_configuration(json.dumps(talkers_config.interfaceConfiguration.interfaceList[0].getData()))
         # Send declaration request to rap participant
         talker_participantId = self.stream_register.get_participant_id_talker(stream_id)
-        self.declare_attribute(participantId=talker_participantId, attribute=laa)
+        if talker_participantId != -1:
+            self.declare_attribute(participantId=talker_participantId, attribute=laa)
+            logger.error("Talker does not Exist!")
+
 
     def declare_attribute(self, participantId, attribute):
         msg = {

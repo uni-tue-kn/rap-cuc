@@ -170,9 +170,9 @@ class StreamManagementSM:
         self.ssdb.update_listeners_confs(stream_id, listeners_status)
 
         msg_type = self.ssdb.advance_state("NEW_RESULT", stream_id)
-
-        q_pckt.message["stream_state"] = self.ssdb[stream_id].state
         # msg_type: SM_STREAM_STATUS_IND
+
+        q_pckt.message["stream_state"] = self.ssdb.data.get(stream_id).state
         msg = q_pckt.message
         self.queue_register["protocol_connector"].send_msg(msg=MsgQueuePacket(msg_type, msg),
                                                       sender_name="sml")

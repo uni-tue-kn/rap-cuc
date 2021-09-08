@@ -19,7 +19,7 @@ from shared.aux.msgQueuePacket import MsgQueuePacket
 from shared.aux.msgType import MsgType
 
 
-sys.path.insert(0, '..')
+sys.path.insert(0, '')
 from shared.aux.task import Task
 from shared.aux.logger import Logger
 
@@ -87,12 +87,6 @@ if __name__ == '__main__':
     main()
     print("Exiting main", flush=True)
 
-'''
-TODOS here:
- - initiate the CUC tasks and message queues
-    - lrp_dummy has special socket based message queue
-    - rap_cuc_task has normal queue 
-'''
 
 
 

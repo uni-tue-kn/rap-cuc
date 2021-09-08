@@ -32,7 +32,7 @@
     "neighbourTargetPorts":
     [
         {
-            "chassisId": "01-01-01-01-01-01",
+            "chassisId": "00-01-00-00-00-60",
             "portId": "1",
             "ecpCapable": false,
             "tcpCapable": true,
@@ -41,7 +41,7 @@
             "addrIPv6": ""
         },
         {
-            "chassisId": "02-02-02-02-02-02",
+            "chassisId": "00-01-00-00-00-64",
             "portId": "2",
             "ecpCapable" : false,
             "tcpCapable": true,
@@ -50,7 +50,7 @@
             "addrIPv6": ""
         },
         {
-            "chassisId": "03-03-03-03-03-03",
+            "chassisId": "00-01-00-00-00-68",
             "portId": "3",
             "ecpCapable" : false,
             "tcpCapable": true,

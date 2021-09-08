@@ -103,7 +103,7 @@ class StreamStatusDb:
 
             elif event == "NEW_RESULT":
                 if curr_state == StreamState.PENDING or curr_state == StreamState.DEPLOYED or curr_state == StreamState.ERROR:
-                    if self.data[stream_id].statusInfo["failure-code"] == 0:
+                    if self.data[stream_id].status.statusInfo["failure-code"] == 0:
                         self.data[stream_id].state = StreamState.DEPLOYED
                     else:
                         self.data[stream_id].state = StreamState.ERROR
